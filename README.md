@@ -30,14 +30,15 @@ cd .. && cargo build --release
 ```bash
 lanterm # default port 8999
 lanterm --port 8080 # custom port
-lanterm --shell zsh # custom shell
+lanterm --shell zsh  # custom shell
+lanterm --version    # show version
 ```
 
 ## How it works
 
 LanTerm starts an HTTP server on 0.0.0.0:8999, serves a Vue 3 + xterm.js frontend, and upgrades WebSocket connections to a portable-pty shell session. Keyboard input goes through WebSocket binary frames to the PTY writer; PTY output streams back as binary frames to the browser
 
-## Known limitations (v0.1)
+## Known limitations (v0.1.1)
 
 - No auth — anyone on your LAN can connect
 - Single terminal per connection

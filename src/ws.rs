@@ -17,12 +17,12 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
+use crate::pty::Session;
 use axum::extract::ws::{Message, WebSocket, WebSocketUpgrade};
 use axum::response::IntoResponse;
 use futures_util::{SinkExt, StreamExt};
-use std::sync::{Arc, Mutex};
-use crate::pty::Session;
 use serde::{Deserialize, Serialize};
+use std::sync::{Arc, Mutex};
 
 #[derive(Deserialize)]
 #[serde(tag = "type")]
@@ -57,7 +57,9 @@ async fn run_session(socket: WebSocket, shell: String) {
                 msg: &format!("{e}"),
             };
             let _ = sender
-                .send(Message::Text(serde_json::to_string(&msg).unwrap_or_default()))
+                .send(Message::Text(
+                    serde_json::to_string(&msg).unwrap_or_default(),
+                ))
                 .await;
             let _ = sender.send(Message::Close(None)).await;
             return;

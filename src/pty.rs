@@ -17,11 +17,19 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-use portable_pty::{CommandBuilder, NativePtySystem, PtySize, PtySystem};
 use bytes::Bytes;
+use portable_pty::{CommandBuilder, NativePtySystem, PtySize, PtySystem};
 use std::io::{Read, Write};
+use std::path::PathBuf;
 use std::sync::{Arc, Mutex};
 use tokio::sync::mpsc;
+
+fn home_dir() -> PathBuf {
+    std::env::var("USERPROFILE")
+        .or_else(|_| std::env::var("HOME"))
+        .map(PathBuf::from)
+        .unwrap_or_else(|_| std::env::current_dir().expect("failed to get cwd"))
+}
 
 pub struct Session {
     master: Option<Box<dyn portable_pty::MasterPty + Send>>,
@@ -40,7 +48,7 @@ impl Session {
         })?;
 
         let mut cmd = CommandBuilder::new(shell);
-        cmd.cwd(std::env::current_dir()?);
+        cmd.cwd(home_dir());
         let child = pair.slave.spawn_command(cmd)?;
         drop(pair.slave); // spawn 后释放 slave
 

@@ -26,7 +26,7 @@ use clap::Parser;
 use local_ip_address::local_ip;
 
 #[derive(Parser)]
-#[command(name = "lanterm", about = "LAN web terminal sharing")]
+#[command(name = "lanterm", version = env!("CARGO_PKG_VERSION"), about = "LAN web terminal sharing")]
 struct Cli {
     #[arg(long, default_value = "8999")]
     port: u16,

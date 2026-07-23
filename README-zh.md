@@ -31,13 +31,14 @@ cd .. && cargo build --release
 lanterm              # 默认端口 8999
 lanterm --port 8080  # 自定义端口
 lanterm --shell zsh  # 自定义 shell
+lanterm --version    # 显示版本号
 ```
 
 ## 工作原理
 
 LanTerm 在 0.0.0.0:8999 上启动 HTTP 服务器，提供 Vue 3 + xterm.js 前端，并将 WebSocket 连接升级为 portable-pty shell 会话。键盘输入通过 WebSocket 二进制帧发送到 PTY writer；PTY 输出以二进制帧形式流式传输回浏览器
 
-## 已知限制（v0.1）
+## 已知限制（v0.1.1）
 
 - 无认证 — 局域网内任何人都可以连接
 - 每个连接只有一个终端
