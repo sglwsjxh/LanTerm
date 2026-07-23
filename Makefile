@@ -18,7 +18,11 @@ frontend:
 # Clean Rust build artifacts + frontend dist
 clean:
 	cargo clean
-	if exist frontend\dist ( rmdir /s /q frontend\dist )
+ifeq ($(OS),Windows_NT)
+	-rmdir /s /q frontend\dist
+else
+	-rm -rf frontend/dist
+endif
 
 # Run the server (debug build)
 run:
