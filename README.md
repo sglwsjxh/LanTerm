@@ -1,8 +1,23 @@
+<p align="center">
+  <a href="README-zh.md">中文</a> | <a href="README.md">English</a>
+</p>
+
 # LanTerm
 
 Lightweight LAN web terminal sharing. Run it, open your phone browser, get a terminal.
 
 ## Build
+
+### Using Makefile (recommended)
+
+```bash
+make build        # build frontend + Rust release binary
+make dev          # build frontend + Rust debug binary (faster compilation)
+make frontend     # build frontend assets only
+make clean        # clean build artifacts
+```
+
+### Manual build
 
 ```bash
 cd frontend && npm install && npm run build
