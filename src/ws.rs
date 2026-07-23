@@ -48,7 +48,7 @@ async fn run_session(socket: WebSocket, shell: String) {
     // PTY 输出 → WS 发送（send_task 不持有 session，只持 pty_rx）
     let mut send_task = tokio::spawn(async move {
         while let Some(bytes) = pty_rx.recv().await {
-            if sender.send(Message::Binary(bytes)).await.is_err() {
+            if sender.send(Message::Binary(bytes.to_vec())).await.is_err() {
                 break;
             }
         }
