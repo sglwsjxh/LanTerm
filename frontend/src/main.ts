@@ -1,5 +1,4 @@
 import { createApp } from 'vue'
-const app = {
-  template: '<div>LanTerm placeholder</div>'
-}
-createApp(app).mount('#app')
+import App from './App.vue'
+import './style.css'
+createApp(App).mount('#app')
