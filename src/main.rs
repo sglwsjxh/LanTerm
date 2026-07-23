@@ -23,7 +23,7 @@ mod ws;
 
 use axum::{routing::get, Router};
 use clap::Parser;
-use local_ip_address::local_ip;
+use local_ip_address::list_afinet_netifas;
 
 #[derive(Parser)]
 #[command(name = "lanterm", version = env!("CARGO_PKG_VERSION"), about = "LAN web terminal sharing")]
@@ -42,20 +42,29 @@ fn default_shell() -> String {
     }
 }
 
-fn detect_lan_ip() -> Option<String> {
-    local_ip().ok().map(|ip| ip.to_string())
+fn detect_lan_ips() -> Vec<String> {
+    list_afinet_netifas()
+        .ok()
+        .map(|ifas| {
+            ifas.into_iter()
+                .filter(|(_, ip)| ip.is_ipv4() && !ip.is_loopback())
+                .map(|(_, ip)| ip.to_string())
+                .collect()
+        })
+        .unwrap_or_default()
 }
 
 #[tokio::main]
 async fn main() -> anyhow::Result<()> {
     let cli = Cli::parse();
     let shell = cli.shell.unwrap_or_else(default_shell);
-    let lan_ip = detect_lan_ip().unwrap_or_else(|| "127.0.0.1".into());
+    let lan_ips = detect_lan_ips();
 
-    println!(
-        "LanTerm running\n\n Local: http://127.0.0.1:{}\n LAN: http://{}:{}\n\n ⚠ no auth — anyone on your LAN can connect\n",
-        cli.port, lan_ip, cli.port
-    );
+    println!("LanTerm running\n\n Local: http://127.0.0.1:{}", cli.port);
+    for ip in &lan_ips {
+        println!("  LAN: http://{}:{}", ip, cli.port);
+    }
+    println!("\n ⚠ no auth — anyone on your LAN can connect\n");
 
     let addr = format!("0.0.0.0:{}", cli.port);
     let shell_clone = shell.clone();

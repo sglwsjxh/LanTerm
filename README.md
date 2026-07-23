@@ -42,7 +42,6 @@ LanTerm starts an HTTP server on 0.0.0.0:8999, serves a Vue 3 + xterm.js fronten
 
 - No auth — anyone on your LAN can connect
 - Single terminal per connection
-- LAN IP detection may pick wrong NIC on multi-NIC machines
 - Mobile touch selection limited; keyboard via hidden textarea
 
 ## Tech stack
