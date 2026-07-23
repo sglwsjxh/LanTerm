@@ -1,4 +1,23 @@
 <script setup lang="ts">
+/*
+ * LanTerm - Lightweight LAN web terminal sharing
+ *
+ * Copyright (C) 2026 清木殇
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU Affero General Public License as published
+ * by the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU Affero General Public License for more details.
+ *
+ * You should have received a copy of the GNU Affero General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 import { onMounted, onUnmounted, shallowRef, ref } from 'vue'
 import { Terminal } from '@xterm/xterm'
 import { FitAddon } from '@xterm/addon-fit'
@@ -10,7 +29,6 @@ const fitAddon = shallowRef<FitAddon | null>(null)
 let ws: WebSocket | null = null
 let resizeTimer: number | null = null
 const containerRef = shallowRef<HTMLDivElement | null>(null)
-const hiddenInputRef = shallowRef<HTMLTextAreaElement | null>(null)
 
 onMounted(() => {
   if (!containerRef.value) return
@@ -26,6 +44,9 @@ onMounted(() => {
   fit.fit()
   term.value = t
   fitAddon.value = fit
+
+  // 给终端初始焦点，让光标闪烁
+  t.focus()
 
   const proto = location.protocol === 'https:' ? 'wss:' : 'ws:'
   ws = new WebSocket(`${proto}//${location.host}/ws`)
@@ -52,8 +73,6 @@ onMounted(() => {
       ws.send(JSON.stringify({ type: 'resize', cols, rows }))
   })
   window.addEventListener('resize', onWindowResize)
-
-  containerRef.value.addEventListener('click', () => hiddenInputRef.value?.focus())
 })
 
 function onWindowResize() {
@@ -76,17 +95,9 @@ onUnmounted(() => {
 </script>
 
 <template>
-  <div class="terminal-wrapper">
-    <div ref="containerRef" class="terminal-container"></div>
-    <textarea ref="hiddenInputRef" class="hidden-input" autocomplete="off" autocapitalize="off" autocorrect="off"></textarea>
-  </div>
+  <div ref="containerRef" class="terminal-container"></div>
 </template>
 
 <style scoped>
-.terminal-wrapper { width: 100%; height: 100%; position: relative; overflow: hidden; }
 .terminal-container { width: 100%; height: 100%; overflow: hidden; }
-.hidden-input {
-  position: absolute; top: -9999px; left: -9999px;
-  width: 1px; height: 1px; opacity: 0; border: none;
-}
 </style>

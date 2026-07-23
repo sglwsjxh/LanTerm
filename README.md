@@ -1,18 +1,18 @@
+# LanTerm
+
+Lightweight LAN web terminal sharing
+
 <p align="center">
   <a href="README-zh.md">中文</a> | <a href="README.md">English</a>
 </p>
 
-# LanTerm
-
-Lightweight LAN web terminal sharing. Run it, open your phone browser, get a terminal.
-
 ## Build
 
-### Using Makefile (recommended)
+### Using Makefile
 
 ```bash
 make build        # build frontend + Rust release binary
-make dev          # build frontend + Rust debug binary (faster compilation)
+make dev          # build frontend + Rust debug binary
 make frontend     # build frontend assets only
 make clean        # clean build artifacts
 ```
@@ -21,7 +21,8 @@ make clean        # clean build artifacts
 
 ```bash
 cd frontend && npm install && npm run build
-cd .. && cargo build --release # → target/release/lanterm (single binary, frontend embedded)
+cd .. && cargo build --release
+# → target/release/lanterm
 ```
 
 ## Run
@@ -34,7 +35,7 @@ lanterm --shell zsh # custom shell
 
 ## How it works
 
-LanTerm starts an HTTP server on 0.0.0.0:8999, serves a Vue 3 + xterm.js frontend, and upgrades WebSocket connections to a portable-pty shell session. Keyboard input goes through WebSocket binary frames to the PTY writer; PTY output streams back as binary frames to the browser.
+LanTerm starts an HTTP server on 0.0.0.0:8999, serves a Vue 3 + xterm.js frontend, and upgrades WebSocket connections to a portable-pty shell session. Keyboard input goes through WebSocket binary frames to the PTY writer; PTY output streams back as binary frames to the browser
 
 ## Known limitations (v0.1)
 
@@ -48,3 +49,7 @@ LanTerm starts an HTTP server on 0.0.0.0:8999, serves a Vue 3 + xterm.js fronten
 - **Backend**: Rust + Axum + tokio + portable-pty + rust-embed
 - **Frontend**: Vue 3 + xterm.js + @xterm/addon-fit
 - **Protocol**: WebSocket (Binary for PTY I/O, Text JSON for resize control)
+
+# LICENSE
+
+[AGPL-3.0](LICENSE)
