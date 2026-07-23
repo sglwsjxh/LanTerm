@@ -15,10 +15,10 @@ dev: frontend
 frontend:
 	cd frontend && npm run build
 
-# Clean Rust build artifacts
+# Clean Rust build artifacts + frontend dist
 clean:
 	cargo clean
-	rm -rf frontend/dist
+	if exist frontend\dist ( rmdir /s /q frontend\dist )
 
 # Run the server (debug build)
 run:
