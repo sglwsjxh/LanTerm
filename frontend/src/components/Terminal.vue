@@ -57,8 +57,13 @@ function onContextMenu(ev: MouseEvent) {
   ev.stopImmediatePropagation()
   const t = term.value
   if (!t) return
-  if (t.hasSelection()) copySelection(t)
-  else { flashToast(); t.focus() }
+  if (t.hasSelection()) {
+    copySelection(t)
+  } else {
+    navigator.clipboard.readText()
+      .then(text => t.paste(text))
+      .catch(() => { flashToast(); t.focus() })
+  }
 }
 
 onMounted(() => {
