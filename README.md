@@ -38,11 +38,12 @@ lanterm --version    # show version
 
 LanTerm starts an HTTP server on 0.0.0.0:8999, serves a Vue 3 + xterm.js frontend, and upgrades WebSocket connections to a portable-pty shell session. Keyboard input goes through WebSocket binary frames to the PTY writer; PTY output streams back as binary frames to the browser
 
-## Known limitations (v0.1.1)
+## Known limitations (v0.1.2)
 
 - No auth — anyone on your LAN can connect
 - Single terminal per connection
 - Mobile touch selection limited; keyboard via hidden textarea
+- Right-click paste only works on localhost/HTTPS (LAN IP HTTP falls back to Ctrl+V hint)
 
 ## Tech stack
 

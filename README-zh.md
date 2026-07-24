@@ -38,11 +38,12 @@ lanterm --version    # 显示版本号
 
 LanTerm 在 0.0.0.0:8999 上启动 HTTP 服务器，提供 Vue 3 + xterm.js 前端，并将 WebSocket 连接升级为 portable-pty shell 会话。键盘输入通过 WebSocket 二进制帧发送到 PTY writer；PTY 输出以二进制帧形式流式传输回浏览器
 
-## 已知限制（v0.1.1）
+## 已知限制（v0.1.2）
 
 - 无认证 — 局域网内任何人都可以连接
 - 每个连接只有一个终端
 - 移动端触摸选择有限；通过隐藏的 textarea 输入键盘
+- 右键黏贴仅在 localhost/HTTPS 下生效（LAN IP HTTP 降级为 Ctrl+V 提示）
 
 ## 技术栈
 
