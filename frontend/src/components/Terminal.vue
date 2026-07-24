@@ -28,7 +28,38 @@ const term = shallowRef<Terminal | null>(null)
 const fitAddon = shallowRef<FitAddon | null>(null)
 let ws: WebSocket | null = null
 let resizeTimer: number | null = null
+const showToast = ref(false)
+let toastTimer: number | null = null
 const containerRef = shallowRef<HTMLDivElement | null>(null)
+
+function copySelection(t: Terminal) {
+  const text = t.getSelection()
+  if (!text) return
+  const ta = document.createElement('textarea')
+  ta.value = text
+  ta.style.cssText = 'position:fixed;opacity:0;left:-9999px'
+  document.body.appendChild(ta)
+  ta.select()
+  document.execCommand('copy')
+  document.body.removeChild(ta)
+  t.focus()
+  t.clearSelection()
+}
+
+function flashToast() {
+  if (toastTimer) clearTimeout(toastTimer)
+  showToast.value = true
+  toastTimer = window.setTimeout(() => { showToast.value = false; toastTimer = null }, 2000)
+}
+
+function onContextMenu(ev: MouseEvent) {
+  ev.preventDefault()
+  ev.stopImmediatePropagation()
+  const t = term.value
+  if (!t) return
+  if (t.hasSelection()) copySelection(t)
+  else { flashToast(); t.focus() }
+}
 
 onMounted(() => {
   if (!containerRef.value) return
@@ -47,6 +78,17 @@ onMounted(() => {
 
   // 给终端初始焦点，让光标闪烁
   t.focus()
+
+  t.element?.addEventListener('contextmenu', onContextMenu, { capture: true })
+
+  t.attachCustomKeyEventHandler((ev) => {
+    if (ev.type === 'keydown' && ev.ctrlKey && ev.code === 'KeyC') {
+      if (t.hasSelection()) { copySelection(t); return false }
+      return true
+    }
+    if (ev.type === 'keydown' && ev.ctrlKey && ev.code === 'KeyV') return false
+    return true
+  })
 
   const proto = location.protocol === 'https:' ? 'wss:' : 'ws:'
   ws = new WebSocket(`${proto}//${location.host}/ws`)
@@ -69,8 +111,7 @@ onMounted(() => {
     if (ws?.readyState === WebSocket.OPEN) ws.send(new TextEncoder().encode(data))
   })
   t.onResize(({ cols, rows }) => {
-    if (ws?.readyState === WebSocket.OPEN)
-      ws.send(JSON.stringify({ type: 'resize', cols, rows }))
+    if (ws?.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'resize', cols, rows }))
   })
   window.addEventListener('resize', onWindowResize)
 })
@@ -82,22 +123,44 @@ function onWindowResize() {
 
 function sendResize() {
   const d = fitAddon.value?.proposeDimensions()
-  if (d && ws?.readyState === WebSocket.OPEN)
-    ws.send(JSON.stringify({ type: 'resize', cols: d.cols, rows: d.rows }))
+  if (d && ws?.readyState === WebSocket.OPEN) ws.send(JSON.stringify({ type: 'resize', cols: d.cols, rows: d.rows }))
 }
 
 onUnmounted(() => {
   window.removeEventListener('resize', onWindowResize)
   if (resizeTimer) clearTimeout(resizeTimer)
+  if (toastTimer) clearTimeout(toastTimer)
   if (ws) { ws.close(); ws = null }
-  if (term.value) { term.value.dispose(); term.value = null }
+  if (term.value) {
+    term.value.element?.removeEventListener('contextmenu', onContextMenu, { capture: true })
+    term.value.dispose()
+    term.value = null
+  }
 })
 </script>
 
 <template>
   <div ref="containerRef" class="terminal-container"></div>
+  <div v-if="showToast" class="paste-toast">按 Ctrl+V 黏贴</div>
 </template>
 
 <style scoped>
-.terminal-container { width: 100%; height: 100%; overflow: hidden; }
+.terminal-container {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+}
+.paste-toast {
+  position: fixed;
+  bottom: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #1e1e2e;
+  color: #cdd6f4;
+  padding: 8px 16px;
+  border-radius: 6px;
+  font-size: 14px;
+  z-index: 100;
+  pointer-events: none;
+}
 </style>
